@@ -7,7 +7,7 @@
 //
 
 #include <iostream>
-#include "sort.hpp"
+#include "sort.cpp"
 
 //#define NUM_RANGE 100000
 using namespace std;
@@ -124,12 +124,24 @@ public:
         this->name = name;
     }
     void doTesting(){
+        clock_t start, end;
+        start = clock();
         sortAlg->sort();
+        end = clock();
+        sortAlg->print();
+
+        cout<<"clock cost:" << ((end - start) / 1000000) <<" Million cycles"<<"for algorithm:" << name << endl;
+        
+        cout<<endl<<endl;
+        //cout <<
+        //sortAlg->print();
         
     }
     ~Test(){
-        sortAlg->~SortBasic();
+        //sortAlg->~SortBasic();
+        //delete sortAlg;
     }
+    
 private:
     SortBasic * sortAlg;
     string name;
@@ -159,7 +171,31 @@ int main(int argc, const char * argv[]) {
     */
     
     int * array = generateArray(SIZE);
-
+    QuickSort * a = new QuickSort(array, SIZE);
+    
+    SortBasic * temp = a;
+    Test * test = new Test(temp, "Sequential quick sort");
+    test->doTesting();
+    delete a;
+    delete test;
+    
+    
+    RadixSort * b = new RadixSort(array, SIZE);
+    temp = b;
+    test = new Test(temp, "Sequential Radix Sort");
+    test->doTesting();
+    delete b;
+    delete test;
+    
+    
+    BitonicSort * c = new BitonicSort(array, SIZE);
+    temp = c;
+    test = new Test(temp, "Sequential Bitonic Sort");
+    test->doTesting();
+    delete c;
+    delete test;
+    
+    
     delete [] array;
     return 0;
 }

@@ -10,6 +10,8 @@
 #include<iostream>
 using namespace std;
 
+
+
 class SortBasic{
 public:
     SortBasic(int a [], int n){
@@ -25,16 +27,20 @@ public:
         return array;
     }
     void print(){
+        cout<<"Array context"<<endl;
         for(int i = 0; i < size; i++){
             cout<<array[i]<<",";
         }
         cout<<endl;
+        
     }
 protected:
     int size;
     int * array;
 
 };
+
+
 
 class QuickSort: public SortBasic{
 public:
@@ -113,20 +119,15 @@ private:
         if (dir==(a[i]>a[j]))
             swap(a[i],a[j]);
     }
-    
-    /*It recursively sorts a bitonic sequence in ascending order,
-     if dir = 1, and in descending order otherwise (means dir=0).
-     The sequence to be sorted starts at index position low,
-     the parameter cnt is the number of elements to be sorted.*/
-    void bitonicMerge(int a[], int low, int cnt, int dir)
+    void bitonicMerge(int a[], int low, int size, int dir)
     {
-        if (cnt>1)
+        if (size>1)
         {
-            int k = cnt/2;
+            int k = size / 2;
             for (int i=low; i<low+k; i++)
                 compAndSwap(a, i, i+k, dir);
             bitonicMerge(a, low, k, dir);
-            bitonicMerge(a, low+k, k, dir);
+            bitonicMerge(a, low+k, size - k, dir);
         }
     }
     
@@ -142,7 +143,7 @@ private:
             bitonicSort(a, low, k, 1);
             
             // sort in descending order since dir here is 0
-            bitonicSort(a, low+k, k, 0);
+            bitonicSort(a, low+k, size - k, 0);
             
             // Will merge wole sequence in ascending order
             // since dir=1.

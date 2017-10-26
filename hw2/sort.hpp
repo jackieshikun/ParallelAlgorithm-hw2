@@ -10,7 +10,7 @@
 #define sort_hpp
 
 #include <stdio.h>
-#define SIZE 10
+#define SIZE 16
 #define NUM_RANGE 100000
 
 class SortBasic;
