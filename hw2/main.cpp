@@ -8,11 +8,12 @@
 
 #include <iostream>
 #include "sort.hpp"
+#include "sort.cpp"
 using namespace std;
 
 int * generateArray(int size){
     int * array = new int[size];
-    srand(NULL);
+    srand(time(NULL));
     for(int i = 0; i < size; i++){
         array[i] = rand() % NUM_RANGE;
     }
@@ -23,18 +24,25 @@ class Test{
 public:
     void doTesting(){
         clock_t start, end;
+        bool isAscending = sortAlg->isAscending();
+        cout<<"Before sorting: Is ascending? "<< isAscending<<endl;
         start = clock();
         sortAlg->sort();
         end = clock();
-        sortAlg->print();
+        isAscending = sortAlg->isAscending();
+        cout<<"After sorting: Is ascending? "<< isAscending<<endl;
+        //sortAlg->print();
 
-        cout<<"clock cost:" << ((end - start) / 1000000) <<" Million cycles"<<"for algorithm:" << name << endl;
+        cout<<name<<" cost:" << ((end - start) / 1000000.0) <<" Million cycles"<< endl;
         
         cout<<endl<<endl;
         
     }
     ~Test(){}
     void setAlg(SortBasic * sb){
+        if(sortAlg != NULL){
+            delete sortAlg;
+        }
         this->sortAlg = sb;
 
     }
@@ -47,32 +55,34 @@ private:
     string name;
 };
 
+//Parallel quick sort
+
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::cout << "Hello, World11111!\n";
     
     int * array = generateArray(SIZE);
-    
-    SortBasic * temp = new QuickSort(array, SIZE);
     Test * test = new Test();
-    test->setAlg(temp);
+    
+    test->setAlg(new QuickSort(array, SIZE));
     test->setName("Sequential quick sort");
     test->doTesting();
-    delete temp;
     
-    
-    temp = new RadixSort(array, SIZE);
-    test->setAlg(temp);
+    test->setAlg(new RadixSort(array, SIZE));
     test->setName("Sequential Radix Sort");
     test->doTesting();
-    delete temp;
     
-    temp = new BitonicSort(array, SIZE);
+    test->setAlg(new BitonicSort(array, SIZE));
     test->setName("Sequential Bitonic Sort");
-    test->setAlg(temp);
     test->doTesting();
-    delete temp;
+    
+    test->setAlg(new ParaQuickSort(array, SIZE));
+    test->setName("Parallel quick sort");
+    test->doTesting();
+    
+    test->setAlg(new ParaRadixSort(array, SIZE));
+    test->setName("Parallel Radix sort");
+    test->doTesting();
     
     
     delete test;
