@@ -186,11 +186,13 @@ private:
     {
         if (size>1)
         {
+            
             int k = size / 2;
             for (int i=low; i<low+k; i++)
                 compAndSwap(a, i, i+k, dir);
             bitonicMerge(a, low, k, dir);
             bitonicMerge(a, low+k, size - k, dir);
+            
         }
     }
     void bitonicSort(int a[],int low, int size, int dir)
@@ -289,7 +291,8 @@ private:
         if(index - start <= size_per_thread || tid * 2 >= THREAD_NUM){
             seqQsort(start, index - 1);
         }else{
-            tid++;
+            //tid++;
+            cout<<tid<<end;
             QSORTPARAM para;
             para.myClass = this;
             para.start = start;
@@ -303,7 +306,7 @@ private:
             
         }
         
-        if(end - index <= size_per_thread || tid * 2 + 1 == THREAD_NUM - 1){
+        if(end - index <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
             seqQsort(index + 1, end);
         }else{
             //tid++;
@@ -342,9 +345,10 @@ public:
     }
     ~ParaRadixSort(){
         delete [] array;
+        delete [] pt;
     }
     void sort(){
-        int pIndex = 0;
+        int pIndex = 1;
         int rc = 0;
         void * exit_status;
         
@@ -369,45 +373,50 @@ private:
         return NULL;
     }
     void RadixSort(int start, int end, int tid, int exp){
-        //cout<<tid<<endl;
         int rc = 0;
         int index = partition(start, end, exp);
-        void * exit_status;
-        if(index - start <= size_per_thread || tid == THREAD_NUM - 1){
+        void * exit_status1;
+        void * exit_status2;
+        bool isLeft = false;
+        bool isRight = false;
+        if(index - start <= size_per_thread || tid * 2 >= THREAD_NUM){
             rSort(start, index, exp >> 1);
         }else{
-            tid++;
+            //tid++;
             RSORT para;
             para.myClass = this;
             para.start = start;
             para.end = index;
-            para.tid = tid;
+            para.tid = tid * 2;
             para.exp = exp >> 1;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
                 cout<<"Parallel Radix sort initialization failed";
                 return;
             }
+            isLeft = true;
             
-            pthread_join(pt[para.tid], &exit_status);
         }
         
         if(end - index <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
             rSort(index, end, exp>>1);
         }else{
-            tid++;
+            //tid++;
             RSORT para;
             para.myClass = this;
             para.start = index;
             para.end = end;
-            para.tid = tid;
+            para.tid = tid * 2 + 1;
             para.exp = exp >> 1;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
                 cout<<"Parallel quick sort initialization failed";
                 return;
             }
-            pthread_join(pt[para.tid], &exit_status);
+            isRight = true;
+            //pthread_join(pt[para.tid], &exit_status);
             
         }
+        if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
+        if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
     }
     
     int partition(int start, int end, int exp){
@@ -423,7 +432,6 @@ private:
         int * temp = new int [end - start];
         for(int i = 0; i < end - start; i++){
             int num = andOperation(array[i+start],exp);
-            //cout<<"i:"<<i<<" num:"<<num<<endl;
             temp[count[num]-1] = array[i+start];
             count[num]--;
         }
@@ -478,9 +486,10 @@ public:
     }
     ~ParaBitonicSort(){
         delete [] array;
+        delete [] pt;
     }
     void sort(){
-        int pIndex = 0;
+        int pIndex = 1;
         int rc = 0;
         void * exit_status;
         
@@ -507,47 +516,49 @@ private:
         if(size <= 1)   return;
         int rc = 0;
         int half = size / 2;
-        
-        //cout<<tid<<endl;
-        void * exit_status;
-        if(half <= size_per_thread || tid == THREAD_NUM - 1){
+        void * exit_status1;
+        void * exit_status2;
+        bool isLeft = false;
+        bool isRight = false;
+        if(half <= size_per_thread || tid * 2 >= THREAD_NUM ){
             bitonicSort(low, half, 1);
-            //rSort(start, half, exp >> 1);
         }else{
-            tid++;
+            //tid++;
             BSORT para;
             para.myClass = this;
             para.start = low;
             para.size = half;
             para.dir = 1;
-            para.tid = tid;
+            para.tid = tid * 2;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
                 cout<<"Parallel Radix sort initialization failed";
                 return;
             }
+            isLeft = true;
             
-            pthread_join(pt[para.tid], &exit_status);
         }
         
-        if(half <= size_per_thread || tid == THREAD_NUM - 1){
+        if(half <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
             bitonicSort(low + half, half, 0);
-            //rSort(start, half, exp >> 1);
         }else{
-            tid++;
+            //tid++;
             BSORT para;
             para.myClass = this;
             para.start = low + half;
             para.size = half;
             para.dir = 0;
-            para.tid = tid;
+            para.tid = tid * 2 + 1;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
                 cout<<"Parallel Radix sort initialization failed";
                 return;
             }
-            pthread_join(pt[para.tid], &exit_status);
+            isRight = true;
+            
         }
+        if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
+        if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
         bitonicMerge(low, size, dir);
-                cout<<endl;
+        
     }
     
     void compAndSwap(int i, int j, int dir)
@@ -560,21 +571,12 @@ private:
     {
         if (size>1)
         {
-            for(int i = low; i < low + size; i++){
-                cout<<array[i]<<",";
-            }
-            cout<<endl;
             int k = size / 2;
             for (int i=low; i<low+k; i++)
                 compAndSwap(i, i+k, dir);
             bitonicMerge(low, k, dir);
             bitonicMerge(low+k, k, dir);
             
-            for(int i = low; i < low + size; i++){
-                cout<<array[i]<<",";
-            }
-            cout<<endl;
-
         }
         
     }
@@ -592,7 +594,7 @@ private:
             
             // Will merge wole sequence in ascending order
             // since dir=1.
-            //bitonicMerge(low, size, dir);
+            bitonicMerge(low, size, dir);
         }
     }
     

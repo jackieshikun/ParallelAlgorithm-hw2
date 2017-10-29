@@ -35,7 +35,7 @@ public:
 
         cout<<name<<" cost:" << ((end - start) / 1000000.0) <<" Million cycles"<< endl;
         
-        cout<<endl<<endl;
+        cout<<endl;
         
     }
     ~Test(){}
@@ -64,22 +64,22 @@ int main(int argc, const char * argv[]) {
     int * array = generateArray(SIZE);
     Test * test = new Test();
     
+
     test->setAlg(new QuickSort(array, SIZE));
     test->setName("Sequential quick sort");
     test->doTesting();
-    /*
-    test->setAlg(new RadixSort(array, SIZE));
+        test->setAlg(new RadixSort(array, SIZE));
     test->setName("Sequential Radix Sort");
     test->doTesting();
     
     test->setAlg(new BitonicSort(array, SIZE));
     test->setName("Sequential Bitonic Sort");
     test->doTesting();
-    */
+    
     test->setAlg(new ParaQuickSort(array, SIZE));
     test->setName("Parallel quick sort");
     test->doTesting();
-    /*
+    
     test->setAlg(new ParaRadixSort(array, SIZE));
     test->setName("Parallel Radix sort");
     test->doTesting();
@@ -87,7 +87,6 @@ int main(int argc, const char * argv[]) {
     test->setAlg(new ParaBitonicSort(array, SIZE));
     test->setName("Parallel Bitonic sort");
     test->doTesting();
-    */
     delete test;
     delete [] array;
     return 0;

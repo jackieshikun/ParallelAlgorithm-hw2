@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <pthread.h>
-#define SIZE 1024*1024*32
+#define SIZE 1024 * 1024
 #define NUM_RANGE 100000
 #define THREAD_NUM 4
 
