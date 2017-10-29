@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 #include <pthread.h>
-#define SIZE 1024*1024
+#define SIZE 1024*1024*32
 #define NUM_RANGE 100000
-#define THREAD_NUM 16
+#define THREAD_NUM 4
 
 class SortBasic;
 class ParaQuickSort;
@@ -21,6 +21,7 @@ class QuickSort;
 class BitonicSort;
 class RadixSort;
 class ParaRadixSort;
+class ParaBitonicSort;
 
 
 #endif /* sort_hpp */
