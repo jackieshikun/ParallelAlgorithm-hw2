@@ -253,6 +253,7 @@ public:
 private:
     int size_per_thread;
     pthread_t * pt;
+    pthread_mutex_t mutex;
     static void * _thread_t(void * param){
         QSORTPARAM * ptr = (QSORTPARAM *)param;
         ptr->myClass->qsort(ptr->start, ptr->end, ptr->threadID);
@@ -280,7 +281,6 @@ private:
     
     void qsort(int start, int end, int tid){
         if(start > end) return;
-        //cout<<tid<<endl;
         int rc = 0;
         int index = partition(start, end);
         void * exit_status1;
@@ -292,7 +292,6 @@ private:
             seqQsort(start, index - 1);
         }else{
             //tid++;
-            cout<<tid<<end;
             QSORTPARAM para;
             para.myClass = this;
             para.start = start;
@@ -325,6 +324,7 @@ private:
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
+        pthread_exit(NULL);
     }
     
 };
@@ -417,6 +417,7 @@ private:
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
+        pthread_exit(NULL);
     }
     
     int partition(int start, int end, int exp){
@@ -558,6 +559,7 @@ private:
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
         bitonicMerge(low, size, dir);
+        pthread_exit(NULL);
         
     }
     

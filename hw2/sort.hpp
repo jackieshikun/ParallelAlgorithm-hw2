@@ -13,7 +13,7 @@
 #include <pthread.h>
 #define SIZE 1024 * 1024
 #define NUM_RANGE 100000
-#define THREAD_NUM 4
+#define THREAD_NUM 8
 
 class SortBasic;
 class ParaQuickSort;

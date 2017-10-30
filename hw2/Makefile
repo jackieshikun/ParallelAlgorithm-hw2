@@ -1,5 +1,5 @@
 test : main.o sort.o
-	g++ -o test main.o sort.o
+	g++ -o -pthread test main.o sort.o
 
 sort.o : sort.cpp
 	g++ -c sort.cpp sort.hpp -pthread
