@@ -264,13 +264,16 @@ private:
             para->myClass = this;
             para->start = start;
             para->end = index - 1;
+            //tid++;
+            //para->threadID = tid;
             para->threadID = tid * 2;
             if((rc = pthread_create(&pt[para->threadID], NULL, _thread_t, para ))){
                 cout<<"Parallel quick sort initialization failed";
                 return;
             }
             isLeft = true;
-            
+            //pthread_join(pt[tid], &exit_status1);
+
         }
         
         if(end - index <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
@@ -281,13 +284,17 @@ private:
             para.myClass = this;
             para.start = index + 1;
             para.end = end;
+            
+            //tid++;
+            //para.threadID = tid;
             para.threadID = tid * 2 + 1;
             if((rc = pthread_create(&pt[para.threadID], NULL, _thread_t, &para ))){
                 cout<<"Parallel quick sort initialization failed";
                 return;
             }
             isRight = true;
-            
+            //pthread_join(pt[tid], &exit_status2);
+
             
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
@@ -356,6 +363,8 @@ private:
             para.myClass = this;
             para.start = start;
             para.end = index;
+            //tid++;
+            //para.tid = tid;
             para.tid = tid * 2;
             para.exp = exp >> 1;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
@@ -363,7 +372,8 @@ private:
                 return;
             }
             isLeft = true;
-            
+            //pthread_join(pt[tid], &exit_status1);
+
         }
         
         if(end - index <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
@@ -374,6 +384,8 @@ private:
             para.myClass = this;
             para.start = index;
             para.end = end;
+            //tid++;
+            //para.tid = tid;
             para.tid = tid * 2 + 1;
             para.exp = exp >> 1;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
@@ -381,7 +393,7 @@ private:
                 return;
             }
             isRight = true;
-            //pthread_join(pt[para.tid], &exit_status);
+            //pthread_join(pt[para.tid], &exit_status2);
             
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
@@ -523,13 +535,16 @@ private:
             para.start = low;
             para.size = half;
             para.dir = 1;
+            //tid++;
+            //para.tid = tid;
             para.tid = tid * 2;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
                 cout<<"Parallel Radix sort initialization failed";
                 return;
             }
             isLeft = true;
-            
+            //pthread_join(pt[tid], &exit_status1);
+
         }
         
         if(half <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
@@ -542,12 +557,15 @@ private:
             para.start = low + half;
             para.size = half;
             para.dir = 0;
+            //tid++;
+            //para.tid = tid;
             para.tid = tid * 2 + 1;
             if((rc = pthread_create(&pt[para.tid], NULL, _thread_t, &para ))){
                 cout<<"Parallel Radix sort initialization failed";
                 return;
             }
             isRight = true;
+            //pthread_join(pt[tid], &exit_status2);
             
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
