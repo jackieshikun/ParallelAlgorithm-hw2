@@ -47,11 +47,11 @@ public:
         delete [] array;
     }
     void sort(){
-        squentialQuickSort(array, 0, size - 1);
+        squentialQuickSort(0, size - 1);
     }
 
 private:
-    void squentialQuickSort(int array [], int start, int end){
+    void squentialQuickSort(int start, int end){
         if(start > end) return;
         int pivot = array[end];
         int left = start;
@@ -62,15 +62,10 @@ private:
             }
         }
         swap(array[left], array[end]);
-        squentialQuickSort(array, start, left - 1);
-        squentialQuickSort(array, left + 1, end);
+        squentialQuickSort(start, left - 1);
+        squentialQuickSort(left + 1, end);
     }
 };
-
-
-
-
-
 
 
 class RadixSort: public SortBasic{
@@ -130,38 +125,10 @@ protected:
     }
     int getExp(){
         int exp = 1;
-        while(exp < NUM_RANGE)  exp<<=1;
+        while(exp << 1 < NUM_RANGE)  exp<<=1;
         return exp;
     }
-    /*
-    void countSort(int array[], int size, int exp){
-        int output[size]; // output array
-        int i, count[10] = {0};
-        
-        for (i = 0; i < size; i++)
-            count[ (array[i]/exp)%10 ]++;
-        
-        for (i = 1; i < 10; i++)
-            count[i] += count[i - 1];
-        
-        for (i = size - 1; i >= 0; i--)
-        {
-            output[count[ (array[i]/exp)%10 ] - 1] = array[i];
-            count[ (array[i]/exp)%10 ]--;
-        }
-        
-        for (i = 0; i < size; i++)
-            array[i] = output[i];
-    }
-    void compAndSwap(int a[], int i, int j, int dir)
-    {
-        if (dir==(a[i]>a[j]))
-            swap(a[i],a[j]);
-    }
-     */
 };
-
-
 
 
 
@@ -226,7 +193,7 @@ struct qSort{
 class ParaQuickSort:public SortBasic{
 public:
     ParaQuickSort(int a[], int size): SortBasic(a, size){
-        size_per_thread = SIZE/THREAD_NUM;
+        size_per_thread = SIZE/(THREAD_NUM + 8 );
         pt = new pthread_t [THREAD_NUM];
     }
     ~ParaQuickSort(){
@@ -281,6 +248,7 @@ private:
     
     void qsort(int start, int end, int tid){
         if(start > end) return;
+        //cout<<tid<<endl;
         int rc = 0;
         int index = partition(start, end);
         void * exit_status1;
@@ -292,12 +260,12 @@ private:
             seqQsort(start, index - 1);
         }else{
             //tid++;
-            QSORTPARAM para;
-            para.myClass = this;
-            para.start = start;
-            para.end = index - 1;
-            para.threadID = tid * 2;
-            if((rc = pthread_create(&pt[para.threadID], NULL, _thread_t, &para ))){
+            QSORTPARAM * para = new QSORTPARAM;
+            para->myClass = this;
+            para->start = start;
+            para->end = index - 1;
+            para->threadID = tid * 2;
+            if((rc = pthread_create(&pt[para->threadID], NULL, _thread_t, para ))){
                 cout<<"Parallel quick sort initialization failed";
                 return;
             }
@@ -324,7 +292,7 @@ private:
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
-        pthread_exit(NULL);
+        //pthread_exit(NULL);
     }
     
 };
@@ -340,7 +308,7 @@ struct rSortStr{
 class ParaRadixSort:public SortBasic{
 public:
     ParaRadixSort(int a [], int size):SortBasic(a,size){
-        size_per_thread = SIZE/THREAD_NUM;
+        size_per_thread = SIZE/(THREAD_NUM + 8);
         pt = new pthread_t [THREAD_NUM];
     }
     ~ParaRadixSort(){
@@ -374,6 +342,7 @@ private:
     }
     void RadixSort(int start, int end, int tid, int exp){
         int rc = 0;
+        //cout<<tid<<endl;
         int index = partition(start, end, exp);
         void * exit_status1;
         void * exit_status2;
@@ -417,7 +386,7 @@ private:
         }
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
-        pthread_exit(NULL);
+        //pthread_exit(NULL);
     }
     
     int partition(int start, int end, int exp){
@@ -464,7 +433,7 @@ private:
     }
     int getExp(){
         int exp = 1;
-        while(exp < NUM_RANGE)  exp<<=1;
+        while(exp << 1 < NUM_RANGE)  exp<<=1;
         return exp;
     }
 
@@ -481,7 +450,7 @@ struct bsortstr{
 class ParaBitonicSort:public SortBasic{
 public:
     ParaBitonicSort(int a[], int size):SortBasic(a, size){
-        size_per_thread = SIZE/THREAD_NUM;
+        size_per_thread = SIZE/(THREAD_NUM + 8);
         pt = new pthread_t [THREAD_NUM];
 
     }
@@ -513,6 +482,29 @@ private:
         return NULL;
     }
     
+    int partition(int start, int end, int dir){
+        if(start > end) return -1;
+        int pivot = array[end];
+        int left = start;
+        for(int i = start; i < end; i++){
+            if(dir == 1 && array[i] < pivot){
+                swap(array[i], array[left]);
+                left++;
+            }else if(dir == 0 && array[i] > pivot){
+                swap(array[i], array[left]);
+                left++;
+            }
+        }
+        swap(array[left], array[end]);
+        return left;
+    }
+    void seqQsort(int start, int end, int dir){
+        if(start > end) return;
+        int index = partition(start, end, dir);
+        seqQsort(start, index - 1, dir);
+        seqQsort(index+1, end, dir);
+    }
+    
     void BitonsicSort(int low, int size, int dir, int tid){
         if(size <= 1)   return;
         int rc = 0;
@@ -522,7 +514,8 @@ private:
         bool isLeft = false;
         bool isRight = false;
         if(half <= size_per_thread || tid * 2 >= THREAD_NUM ){
-            bitonicSort(low, half, 1);
+            //bitonicSort(low, half, 1);
+            seqQsort(low, low + half - 1 , 1);
         }else{
             //tid++;
             BSORT para;
@@ -540,7 +533,8 @@ private:
         }
         
         if(half <= size_per_thread || tid * 2 + 1 >= THREAD_NUM){
-            bitonicSort(low + half, half, 0);
+            //bitonicSort(low + half, half, 0);
+            seqQsort(low + half, low + size - 1, 0);
         }else{
             //tid++;
             BSORT para;
@@ -559,7 +553,7 @@ private:
         if(isLeft)  pthread_join(pt[tid * 2], &exit_status1);
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
         bitonicMerge(low, size, dir);
-        pthread_exit(NULL);
+        //pthread_exit(NULL);
         
     }
     

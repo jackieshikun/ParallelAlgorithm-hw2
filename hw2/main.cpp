@@ -12,8 +12,10 @@
 using namespace std;
 
 int * generateArray(int size){
+    //cout<<"size:"<<size<<endl;
     int * array = new int[size];
-    srand(time(NULL));
+    //srand(time(NULL));
+    srand(NULL);
     for(int i = 0; i < size; i++){
         array[i] = rand() % NUM_RANGE;
     }
@@ -64,7 +66,6 @@ int main(int argc, const char * argv[]) {
     int * array = generateArray(SIZE);
     Test * test = new Test();
     
-
     test->setAlg(new QuickSort(array, SIZE));
     test->setName("Sequential quick sort");
     test->doTesting();
