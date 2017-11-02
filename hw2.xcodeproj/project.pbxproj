@@ -252,6 +252,7 @@
 				0EDB2C791FA271A200D7F1AA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

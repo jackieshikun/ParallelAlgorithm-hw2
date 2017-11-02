@@ -69,7 +69,8 @@ int main(int argc, const char * argv[]) {
     test->setAlg(new QuickSort(array, SIZE));
     test->setName("Sequential quick sort");
     test->doTesting();
-        test->setAlg(new RadixSort(array, SIZE));
+    
+    test->setAlg(new RadixSort(array, SIZE));
     test->setName("Sequential Radix Sort");
     test->doTesting();
     
@@ -85,10 +86,13 @@ int main(int argc, const char * argv[]) {
     test->setName("Parallel Radix sort");
     test->doTesting();
     
+    
     test->setAlg(new ParaBitonicSort(array, SIZE));
     test->setName("Parallel Bitonic sort");
     test->doTesting();
+    
     delete test;
     delete [] array;
     return 0;
 }
+

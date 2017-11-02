@@ -201,6 +201,35 @@ public:
         delete [] pt;
     }
     void sort(){
+        
+        int rc = 0;
+        //clock_t start = clock();
+        int index = partition(0, size - 1);
+        //clock_t end = clock();
+        //cout<<"duration:"<<(end - start) / 1000000.0<<endl;
+        void * exit_status1;
+        void * exit_status2;
+        QSORTPARAM para;
+        para.myClass = this;
+        para.start = 0;
+        para.end = index - 1;
+        if((rc = pthread_create(&pt[0], NULL, _thread_t, &para ))){
+            cout<<"Parallel quick sort initialization failed";
+            return;
+        }
+        QSORTPARAM para1;
+        para1.myClass = this;
+        para1.start = index + 1;
+        para1.end = size - 1;
+        if((rc = pthread_create(&pt[1], NULL, _thread_t, &para1 ))){
+            cout<<"Parallel quick sort initialization failed";
+            return;
+        }
+
+        pthread_join(pt[0], &exit_status1);
+        pthread_join(pt[1], &exit_status2);
+        
+        /*
         int pIndex = 1;
         int rc = 0;
         void * exit_status;
@@ -215,6 +244,7 @@ public:
             return;
         }
         pthread_join(pt[pIndex], &exit_status);
+        */
         
     }
 private:
@@ -223,7 +253,8 @@ private:
     pthread_mutex_t mutex;
     static void * _thread_t(void * param){
         QSORTPARAM * ptr = (QSORTPARAM *)param;
-        ptr->myClass->qsort(ptr->start, ptr->end, ptr->threadID);
+        ptr->myClass->seqQsort(ptr->start, ptr->end);
+        //ptr->myClass->qsort(ptr->start, ptr->end, ptr->threadID);
         return NULL;
     }
     int partition(int start, int end){
@@ -260,14 +291,14 @@ private:
             seqQsort(start, index - 1);
         }else{
             //tid++;
-            QSORTPARAM * para = new QSORTPARAM;
-            para->myClass = this;
-            para->start = start;
-            para->end = index - 1;
+            QSORTPARAM para;
+            para.myClass = this;
+            para.start = start;
+            para.end = index - 1;
             //tid++;
             //para->threadID = tid;
-            para->threadID = tid * 2;
-            if((rc = pthread_create(&pt[para->threadID], NULL, _thread_t, para ))){
+            para.threadID = tid * 2;
+            if((rc = pthread_create(&pt[para.threadID], NULL, _thread_t, &para ))){
                 cout<<"Parallel quick sort initialization failed";
                 return;
             }
@@ -301,6 +332,7 @@ private:
         if(isRight) pthread_join(pt[tid * 2 + 1], &exit_status2);
         //pthread_exit(NULL);
     }
+     
     
 };
 struct rSortStr{
@@ -323,6 +355,33 @@ public:
         delete [] pt;
     }
     void sort(){
+        int rc = 0;
+        int exp = getExp();
+        int middle = partition(0, size, exp);
+        RSORT para;
+        para.myClass = this;
+        para.start = 0;
+        para.end = middle;
+        para.exp = exp >> 1;
+        if((rc = pthread_create(&pt[0], NULL, _thread_t, &para ))){
+            cout<<"Parallel Radix sort initialization failed";
+            return;
+        }
+        
+        RSORT para1;
+        para1.myClass = this;
+        para1.start = middle;
+        para1.end = size;
+        para1.exp = exp>>1;
+        if((rc = pthread_create(&pt[1], NULL, _thread_t, &para1 ))){
+            cout<<"Parallel Radix sort initialization failed";
+            return;
+        }
+        void * exit_status1;
+        void * exit_status2;
+        pthread_join(pt[0], &exit_status1);
+        pthread_join(pt[1], &exit_status2);
+        /*
         int pIndex = 1;
         int rc = 0;
         void * exit_status;
@@ -338,13 +397,15 @@ public:
             return;
         }
         pthread_join(pt[pIndex], &exit_status);
+         */
     }
 private:
     int size_per_thread;
     pthread_t * pt;
     static void * _thread_t(void * param){
         RSORT * ptr = (RSORT *)param;
-        ptr->myClass->RadixSort(ptr->start, ptr->end, ptr->tid, ptr->exp);
+        ptr->myClass->rSort(ptr->start, ptr->end, ptr->exp);
+        //ptr->myClass->RadixSort(ptr->start, ptr->end, ptr->tid, ptr->exp);
         return NULL;
     }
     void RadixSort(int start, int end, int tid, int exp){
@@ -462,7 +523,7 @@ struct bsortstr{
 class ParaBitonicSort:public SortBasic{
 public:
     ParaBitonicSort(int a[], int size):SortBasic(a, size){
-        size_per_thread = SIZE/(THREAD_NUM + 8);
+        size_per_thread = SIZE/(THREAD_NUM);
         pt = new pthread_t [THREAD_NUM];
 
     }
@@ -471,6 +532,7 @@ public:
         delete [] pt;
     }
     void sort(){
+        
         int pIndex = 1;
         int rc = 0;
         void * exit_status;
@@ -486,10 +548,13 @@ public:
             return;
         }
         pthread_join(pt[pIndex], &exit_status);
+         
+        //bitonicSort(0, size, 1);
     }
 private:
     static void * _thread_t(void * param){
         BSORT * ptr = (BSORT *)param;
+        //ptr->myClass->bitonicMerge(ptr->start, ptr->size, ptr->dir);
         ptr->myClass->BitonsicSort(ptr->start, ptr->size, ptr->dir, ptr->tid);
         return NULL;
     }
@@ -577,6 +642,7 @@ private:
     
     void compAndSwap(int i, int j, int dir)
     {
+        //cout<<"i:"<<i<<" j:"<<j<<" dir:"<<dir<<endl;
         if (dir==(array[i]>array[j]))
             swap(array[i],array[j]);
     }
@@ -588,8 +654,26 @@ private:
             int k = size / 2;
             for (int i=low; i<low+k; i++)
                 compAndSwap(i, i+k, dir);
+            //cout<<"k:"<<k<<endl;
+            /*
+            pthread_t t1;
+            bool isThread = false;
+            if(size < size_per_thread)
+                bitonicMerge(low, k, dir);
+            else{
+                BSORT param;
+                param.myClass = this;
+                param.start = low;
+                param.size = k;
+                param.dir = dir;
+                pthread_create(&t1, NULL, _thread_t, &param);
+                isThread = true;
+            }
+             */
             bitonicMerge(low, k, dir);
+            
             bitonicMerge(low+k, k, dir);
+            //if(isThread)    pthread_join(t1, NULL);
             
         }
         

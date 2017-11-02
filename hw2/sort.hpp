@@ -18,11 +18,12 @@
 #define NUM_RANGE 100000
 #define THREAD_NUM 4
 
+
 class SortBasic;
-class ParaQuickSort;
 class QuickSort;
 class BitonicSort;
 class RadixSort;
+class ParaQuickSort;
 class ParaRadixSort;
 class ParaBitonicSort;
 
