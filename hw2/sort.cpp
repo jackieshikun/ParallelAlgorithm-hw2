@@ -193,7 +193,7 @@ struct qSort{
 class ParaQuickSort:public SortBasic{
 public:
     ParaQuickSort(int a[], int size): SortBasic(a, size){
-        size_per_thread = SIZE/(THREAD_NUM + 8 );
+        size_per_thread = SIZE/(THREAD_NUM );
         pt = new pthread_t [THREAD_NUM];
     }
     ~ParaQuickSort(){
@@ -201,7 +201,7 @@ public:
         delete [] pt;
     }
     void sort(){
-        
+        /*
         int rc = 0;
         //clock_t start = clock();
         int index = partition(0, size - 1);
@@ -228,8 +228,8 @@ public:
 
         pthread_join(pt[0], &exit_status1);
         pthread_join(pt[1], &exit_status2);
+        */
         
-        /*
         int pIndex = 1;
         int rc = 0;
         void * exit_status;
@@ -244,7 +244,7 @@ public:
             return;
         }
         pthread_join(pt[pIndex], &exit_status);
-        */
+        
         
     }
 private:
@@ -253,8 +253,8 @@ private:
     pthread_mutex_t mutex;
     static void * _thread_t(void * param){
         QSORTPARAM * ptr = (QSORTPARAM *)param;
-        ptr->myClass->seqQsort(ptr->start, ptr->end);
-        //ptr->myClass->qsort(ptr->start, ptr->end, ptr->threadID);
+        //ptr->myClass->seqQsort(ptr->start, ptr->end);
+        ptr->myClass->qsort(ptr->start, ptr->end, ptr->threadID);
         return NULL;
     }
     int partition(int start, int end){
@@ -347,7 +347,7 @@ struct rSortStr{
 class ParaRadixSort:public SortBasic{
 public:
     ParaRadixSort(int a [], int size):SortBasic(a,size){
-        size_per_thread = SIZE/(THREAD_NUM + 8);
+        size_per_thread = SIZE/(THREAD_NUM);
         pt = new pthread_t [THREAD_NUM];
     }
     ~ParaRadixSort(){
@@ -355,6 +355,7 @@ public:
         delete [] pt;
     }
     void sort(){
+        /*
         int rc = 0;
         int exp = getExp();
         int middle = partition(0, size, exp);
@@ -381,7 +382,8 @@ public:
         void * exit_status2;
         pthread_join(pt[0], &exit_status1);
         pthread_join(pt[1], &exit_status2);
-        /*
+        */
+        
         int pIndex = 1;
         int rc = 0;
         void * exit_status;
@@ -397,15 +399,15 @@ public:
             return;
         }
         pthread_join(pt[pIndex], &exit_status);
-         */
+        
     }
 private:
     int size_per_thread;
     pthread_t * pt;
     static void * _thread_t(void * param){
         RSORT * ptr = (RSORT *)param;
-        ptr->myClass->rSort(ptr->start, ptr->end, ptr->exp);
-        //ptr->myClass->RadixSort(ptr->start, ptr->end, ptr->tid, ptr->exp);
+        //ptr->myClass->rSort(ptr->start, ptr->end, ptr->exp);
+        ptr->myClass->RadixSort(ptr->start, ptr->end, ptr->tid, ptr->exp);
         return NULL;
     }
     void RadixSort(int start, int end, int tid, int exp){
@@ -656,7 +658,7 @@ private:
                 compAndSwap(i, i+k, dir);
             //cout<<"k:"<<k<<endl;
             /*
-            pthread_t t1;
+            pthread_t t1 = NULL;
             bool isThread = false;
             if(size < size_per_thread)
                 bitonicMerge(low, k, dir);
@@ -669,7 +671,7 @@ private:
                 pthread_create(&t1, NULL, _thread_t, &param);
                 isThread = true;
             }
-             */
+            */
             bitonicMerge(low, k, dir);
             
             bitonicMerge(low+k, k, dir);
